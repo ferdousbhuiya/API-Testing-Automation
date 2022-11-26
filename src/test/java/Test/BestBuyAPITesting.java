@@ -1,44 +1,53 @@
-package TestFiles;
+package Test;
 
+import Request.RequestFactory;
+import com.aventstack.extentreports.Status;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.testng.annotations.BeforeClass;
+import io.restassured.response.Response;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class BestBuyAPITesting {
 
-    @BeforeClass
-    public void setup()
-    {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 3030;
-    }
+public class BestBuyAPITesting extends BaseTest{
+
+    RequestFactory requestFactory= new RequestFactory();
 
     @Test
     public void verifyGetProduct()
     {
+        extentReport.createTestCase("Verify Get Product");
+        Response response = requestFactory.getAllProduct();
+        extentReport.addLog(Status.INFO, response.asPrettyString());
+        response.then().statusCode(200);
 
-        RestAssured.given().when().get("/products").then().statusCode(200);
+        //RestAssured.given().when().get("/products").then().statusCode(200);
     }
 
     @Test
     public void verifyGetProductWithSpecificID()
     {
+        extentReport.createTestCase("Verify Get Product With Specific ID");
+        Response response = requestFactory.getAllProduct();
+        extentReport.addLog(Status.INFO, response.asPrettyString());
+        response.then().statusCode(200);
+
         RestAssured.given().when().params("id", 43900).get("/products").then().log().all().statusCode(200);
     }
 
     @Test
     public void verifyGetProductWithLimit()
     {
+        extentReport.createTestCase("Verify Get Porduct With Limit");
         RestAssured.given().when().params("$limit", 5).get("/products").then().log().all().statusCode(200);
     }
 
     @Test
     public void verifyPostProduct()
     {
+       extentReport.createTestCase("Verify Add product with request payload as map");
         String requestPayload = "{\n" +
                 "  \"name\": \"Nokia\",\n" +
                 "  \"type\": \"Mobile Phone\",\n" +
@@ -55,12 +64,15 @@ public class BestBuyAPITesting {
         RestAssured.given().contentType(ContentType.JSON)
                 .body(requestPayload).when().post("/products")
                 .then().statusCode(201).log().all();
+
+        requestFactory.addProduct(requestPayload).then().log().all().statusCode(201);
     }
 
 
     @Test
     public void verifyPostProductWithPayloadAsObject()
     {
+        extentReport.createTestCase("Verify Post Product With Payload As Object");
         Map<String, Object> requestPayload = new HashMap<>();
         requestPayload.put("name", "Nokia-3306");
         requestPayload.put("type", "Mobile Phone");
@@ -77,11 +89,16 @@ public class BestBuyAPITesting {
         RestAssured.given().contentType(ContentType.JSON)
                 .body(requestPayload).when().post("/products")
                 .then().statusCode(201).log().all();
+
+
+        requestFactory.addProduct(requestPayload).then().log().all().statusCode(201);
+
     }
 
     @Test
     public void verifyUpdateProductWithPayloadAsObject()
     {
+        extentReport.createTestCase("Verify Update Product With Payload As Object");
         Map<String, Object> requestPayload = new HashMap<>();
         requestPayload.put("name", "Nokia-3356");
         requestPayload.put("type", "Mobile Phone");
@@ -122,6 +139,7 @@ public class BestBuyAPITesting {
     @Test
     public void verifyDeleteProductWithPayloadAsObject()
     {
+        extentReport.createTestCase("Verify Delete Product With Payload AS Object");
         Map<String, Object> requestPayload = new HashMap<>();
         requestPayload.put("name", "Nokia-3356");
         requestPayload.put("type", "Mobile Phone");
